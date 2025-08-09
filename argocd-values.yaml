@@ -1,0 +1,75 @@
+# slim-argocd-values.yaml
+configs:
+  params:
+    server.insecure: true   # 내부망이면 OK. 외부 노출이면 TLS 권장
+
+global:
+  image:
+    imagePullPolicy: IfNotPresent
+  networkPolicy:
+    create: false
+
+# 불필요하면 통째로 OFF (SSO 안 쓰는 환경 기준)
+dex:
+  enabled: false
+
+# 알림 안 쓰면 OFF
+notifications:
+  enabled: false
+
+# Redis는 싱글로 최소화(ArgoCD 내부 의존)
+redis:
+  enabled: true
+  metrics:
+    enabled: false
+  master:
+    persistence:
+      enabled: false    # 경량화/실습용. 필요하면 true로
+  replica:
+    replicaCount: 0
+
+controller:
+  replicas: 1
+  metrics:
+    enabled: false
+  resources:
+    requests: { cpu: "50m", memory: "128Mi" }
+    limits:   { cpu: "300m", memory: "512Mi" }
+  # 동시 처리 줄여서 CPU 압박 완화
+  extraArgs:
+    - --status-processors=1
+    - --operation-processors=1
+
+repoServer:
+  replicas: 1
+  metrics:
+    enabled: false
+  resources:
+    requests: { cpu: "50m", memory: "128Mi" }
+    limits:   { cpu: "300m", memory: "512Mi" }
+  # 동시 렌더/플러그인 부하 완화
+  extraArgs:
+    - --parallelism-limit=2
+
+server:
+  replicas: 1
+  autoscaling:
+    enabled: false
+  metrics:
+    enabled: false
+  resources:
+    requests: { cpu: "50m", memory: "128Mi" }
+    limits:   { cpu: "300m", memory: "512Mi" }
+  service:
+    type: LoadBalancer
+    port: 80
+  ingress:
+    enabled: false
+  # 내부망 테스트용이면 유지, 외부노출이면 빼기
+  extraArgs:
+    - --insecure
+
+# ApplicationSet 안 쓰면 OFF (쓰면 true로)
+applicationSet:
+  enabled: false
+

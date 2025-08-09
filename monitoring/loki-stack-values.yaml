@@ -1,0 +1,25 @@
+# Grafana는 kube-prometheus-stack 것을 사용하므로 비활성화
+grafana:
+  enabled: false
+
+# 노드 로그 수집 유지 (리소스 작게)
+promtail:
+  enabled: true
+  resources:
+    requests: { cpu: "20m", memory: "64Mi" }
+    limits:   { cpu: "200m", memory: "256Mi" }
+
+# Loki 본체: 경량 설정
+loki:
+  enabled: true
+  resources:
+    requests: { cpu: "100m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "1Gi" }
+  persistence:
+    enabled: false          # 디스크 안 씀(가벼움). 필요하면 true + PVC 설정
+  service:
+    type: ClusterIP         # 내부에서만 접근 (Grafana가 내부로 붙음)
+
+# 전체 로그 레벨 살짝 낮춤(노이즈↓)
+logLevel: warn
+

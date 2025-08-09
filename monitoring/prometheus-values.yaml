@@ -1,0 +1,39 @@
+grafana:
+  enabled: true
+  service:
+    type: LoadBalancer
+    port: 80
+  # Loki를 데이터소스로 추가 (loki-stack의 서비스 이름/포트 기준)
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki:3100
+      isDefault: false
+
+prometheus:
+  service:
+    type: ClusterIP        # LB → ClusterIP 로 다운
+  prometheusSpec:
+    retention: 24h         # 보존 짧게(자원 절약). 필요 시 늘리기
+    scrapeInterval: 30s
+    enableAdminAPI: false
+    resources:
+      requests: { cpu: "200m", memory: "512Mi" }
+      limits:   { cpu: "1",    memory: "2Gi" }
+
+alertmanager:
+  enabled: true
+  service:
+    type: ClusterIP        # LB → ClusterIP 로 다운
+  alertmanagerSpec:
+    resources:
+      requests: { cpu: "50m", memory: "128Mi" }
+      limits:   { cpu: "300m", memory: "512Mi" }
+
+# 더 줄이고 싶으면 아래 끄기(대신 메트릭/대시보드 일부 없어짐)
+kubeStateMetrics:
+  enabled: true            # 더 줄일 땐 false
+nodeExporter:
+  enabled: true            # 더 줄일 땐 false
+

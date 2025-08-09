@@ -1,0 +1,16 @@
+fullnameOverride: kubernetes-dashboard
+
+web:
+  service:
+    type: LoadBalancer
+    port: 443
+
+serviceAccount:
+  create: true
+  name: admin-user
+
+    #protocolHttp: false
+
+ingress:
+  enabled: false
+

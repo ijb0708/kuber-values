@@ -1,0 +1,58 @@
+service:
+  http:
+    type: LoadBalancer   # MetalLB가 IP 할당
+    port: 80
+
+postgresql-ha:
+  enabled: false
+
+postgresql:
+  enabled: true
+  architecture: standalone
+  auth:
+    username: gitea
+    database: gitea
+  primary:
+    persistence:
+      size: 2Gi
+  volumePermissions:
+    enabled: true
+
+redis-cluster:
+  enabled: false
+
+valkey:
+  enabled: true
+  architecture: standalone
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      limits:
+        cpu: 100m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+valkey-cluster:
+  enabled: false
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: longhorn
+
+gitea:
+  admin:
+    username: gitea
+    email: gitea@example.com
+
+  config:
+    cache:
+      ADAPTER: redis
+      HOST: gitea-valkey-master
+    session:
+      PROVIDER: redis
+      CONFIG: network=tcp,addr=gitea-valkey-master:6379,db=0,pool_size=100,idle_timeout=180s
+
